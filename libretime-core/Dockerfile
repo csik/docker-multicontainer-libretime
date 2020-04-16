@@ -48,7 +48,8 @@ RUN apt-get install -y \
         php-pear \
         php7.0-gd \
         php-bcmath \
-        php-mbstring
+        php-mbstring \
+	gcc
 
 # Pull down libretime sources
 RUN export DEBIAN_FRONTEND=noninteractive && \
@@ -68,7 +69,8 @@ RUN mkdir -p /external-media/ && \
 # There seems to be a bug somewhere in the code and it's not respecting the DB being on another host (even though it's configured in the config files!)
 # We'll use a lightweight golang TCP proxy to proxy any PGSQL request to the postgres docker container on TCP:5432. 
 
-RUN cd /opt && curl -s -O -L https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && tar -xzf go* && \
+RUN apt-get install -y gcc && \
+    cd /opt && curl -s -O -L https://dl.google.com/go/go1.14.2.linux-armv6l.tar.gz && tar -xzf go* && \
     mv go /usr/local/ && \
     export GOPATH=/opt/ && \
     export GOROOT=/usr/local/go && \
@@ -100,6 +102,8 @@ RUN apt-get remove liquidsoap -y && \
     apt-get install ocaml ocaml-native-compilers camlp4-extra opam autotools-dev automake -y && \
     #
     mkdir /usr/local/opam && \
+    mkdir /usr/share/liquidsoap/ && \
+    useradd liquidsoap && \
     chown liquidsoap:liquidsoap /usr/local/opam /usr/share/liquidsoap/ && \
     #
     # we need to switch to the liquidsoap, some things do not like being installed as root
@@ -108,6 +112,8 @@ RUN apt-get remove liquidsoap -y && \
     echo "liquidsoap ALL = NOPASSWD : ALL" >> /etc/sudoers && \
     #
     # Opam must be >= "4.03" to install the newer Liquidsoap...
+    mkdir /home/liquidsoap && \
+    chown liquidsoap:liquidsoap /home/liquidsoap && \
     su - liquidsoap -c "OPAMYES=yes && opam init --root=/usr/local/opam --yes && opam init --yes && opam switch 4.06.0" && \
     #
     # run the following commands as the liquidsoap user...
