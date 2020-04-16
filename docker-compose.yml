@@ -109,11 +109,11 @@ services:
 
   libretime-icecast:
 
-    # build:
-    #   context: ./libretime-icecast
-    #   dockerfile: Dockerfile
+    build:
+      context: ./libretime-icecast
+      dockerfile: Dockerfile
 
-    image: bushrangers/ubuntu-multicontainer-libretime:icecast-latest
+    # image: bushrangers/ubuntu-multicontainer-libretime:icecast-latest
 
     container_name: libretime-icecast
     restart: always
